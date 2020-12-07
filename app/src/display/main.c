@@ -14,16 +14,28 @@ LOG_MODULE_DECLARE(zmk, CONFIG_ZMK_LOG_LEVEL);
 #include <drivers/display.h>
 #include <lvgl.h>
 
+#include <zmk/display/status_screen.h>
+
 #define ZMK_DISPLAY_NAME CONFIG_LVGL_DISPLAY_DEV_NAME
 
 static struct device *display;
 
 static lv_obj_t *screen;
 
-int zmk_display_init() {
-    lv_obj_t *hello_world_label;
-    lv_obj_t *count_label;
+__attribute__((weak)) lv_obj_t *zmk_display_status_screen() { return NULL; }
 
+void display_tick_cb(struct k_work *work) {
+    lv_tick_inc(10);
+    lv_task_handler();
+}
+
+K_WORK_DEFINE(display_tick_work, display_tick_cb);
+
+void display_timer_cb() { k_work_submit(&display_tick_work); }
+
+K_TIMER_DEFINE(display_timer, display_timer_cb, NULL);
+
+int zmk_display_init() {
     LOG_DBG("");
 
     display = device_get_binding(ZMK_DISPLAY_NAME);
@@ -32,23 +44,20 @@ int zmk_display_init() {
         return -EINVAL;
     }
 
-    screen = lv_obj_create(NULL, NULL);
+    screen = zmk_display_status_screen();
+
+    if (screen == NULL) {
+        LOG_ERR("No status screen provided");
+        return 0;
+    }
+
     lv_scr_load(screen);
 
-    hello_world_label = lv_label_create(lv_scr_act(), NULL);
-    lv_label_set_text(hello_world_label, "ZMK v0.1.0");
-    lv_obj_align(hello_world_label, NULL, LV_ALIGN_CENTER, 0, 0);
-    count_label = lv_label_create(lv_scr_act(), NULL);
-    lv_label_set_text(count_label, CONFIG_ZMK_KEYBOARD_NAME);
-    lv_obj_align(count_label, NULL, LV_ALIGN_IN_BOTTOM_MID, 0, 0);
     lv_task_handler();
     display_blanking_off(display);
 
-    return 0;
-}
+    k_timer_start(&display_timer, K_MSEC(10), K_MSEC(10));
 
-void zmk_display_task_handler() {
-    lv_tick_inc(10);
-    lv_task_handler();
-    k_sleep(K_MSEC(10));
+    LOG_DBG("");
+    return 0;
 }

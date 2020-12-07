@@ -100,7 +100,7 @@ static void raise_profile_changed_event_callback(struct k_work *work) {
 
 K_WORK_DEFINE(raise_profile_changed_event_work, raise_profile_changed_event_callback);
 
-static bool active_profile_is_open() {
+bool zmk_ble_active_profile_is_open() {
     return !bt_addr_le_cmp(&profiles[active_profile].peer, BT_ADDR_LE_ANY);
 }
 
@@ -114,7 +114,7 @@ void set_profile_address(u8_t index, const bt_addr_le_t *addr) {
     sprintf(setting_name, "ble/profiles/%d", index);
     LOG_DBG("Setting profile addr for %s to %s", log_strdup(setting_name), log_strdup(addr_str));
     settings_save_one(setting_name, &profiles[index], sizeof(struct zmk_ble_profile));
-    raise_profile_changed_event();
+    k_work_submit(&raise_profile_changed_event_work);
 }
 
 bool zmk_ble_active_profile_is_connected() {
@@ -169,7 +169,7 @@ int update_advertising() {
     struct bt_conn *conn;
     enum advertising_type desired_adv = ZMK_ADV_NONE;
 
-    if (active_profile_is_open()) {
+    if (zmk_ble_active_profile_is_open()) {
         desired_adv = ZMK_ADV_CONN;
     } else if (!zmk_ble_active_profile_is_connected()) {
         desired_adv = ZMK_ADV_CONN;
@@ -225,6 +225,8 @@ int zmk_ble_clear_bonds() {
 
     return 0;
 };
+
+int zmk_ble_active_profile_index() { return active_profile; }
 
 int zmk_ble_prof_select(u8_t index) {
     LOG_DBG("profile %d", index);
@@ -340,6 +342,7 @@ static bool is_conn_active_profile(const struct bt_conn *conn) {
 static void connected(struct bt_conn *conn, u8_t err) {
     char addr[BT_ADDR_LE_STR_LEN];
     bt_addr_le_to_str(bt_conn_get_dst(conn), addr, sizeof(addr));
+    LOG_DBG("Connected thread: %p", k_current_get());
 
     advertising_status = ZMK_ADV_NONE;
 
@@ -365,7 +368,7 @@ static void connected(struct bt_conn *conn, u8_t err) {
 
     if (is_conn_active_profile(conn)) {
         LOG_DBG("Active profile connected");
-        raise_profile_changed_event();
+        k_work_submit(&raise_profile_changed_event_work);
     }
 }
 
@@ -404,6 +407,7 @@ static struct bt_conn_cb conn_callbacks = {
     .security_changed = security_changed,
 };
 
+/*
 static void auth_passkey_display(struct bt_conn *conn, unsigned int passkey) {
     char addr[BT_ADDR_LE_STR_LEN];
 
@@ -411,6 +415,7 @@ static void auth_passkey_display(struct bt_conn *conn, unsigned int passkey) {
 
     LOG_DBG("Passkey for %s: %06u", log_strdup(addr), passkey);
 }
+*/
 
 #ifdef CONFIG_ZMK_BLE_PASSKEY_ENTRY
 
@@ -446,8 +451,8 @@ static enum bt_security_err auth_pairing_accept(struct bt_conn *conn,
     struct bt_conn_info info;
     bt_conn_get_info(conn, &info);
 
-    LOG_DBG("role %d, open? %s", info.role, active_profile_is_open() ? "yes" : "no");
-    if (info.role == BT_CONN_ROLE_SLAVE && !active_profile_is_open()) {
+    LOG_DBG("role %d, open? %s", info.role, zmk_ble_active_profile_is_open() ? "yes" : "no");
+    if (info.role == BT_CONN_ROLE_SLAVE && !zmk_ble_active_profile_is_open()) {
         LOG_WRN("Rejecting pairing request to taken profile %d", active_profile);
         return BT_SECURITY_ERR_PAIR_NOT_ALLOWED;
     }
@@ -470,7 +475,7 @@ static void auth_pairing_complete(struct bt_conn *conn, bool bonded) {
     }
 
 #if !IS_ENABLED(CONFIG_ZMK_SPLIT_BLE_ROLE_PERIPHERAL)
-    if (!active_profile_is_open()) {
+    if (!zmk_ble_active_profile_is_open()) {
         LOG_ERR("Pairing completed but current profile is not open: %s", log_strdup(addr));
         bt_unpair(BT_ID_DEFAULT, dst);
         return;
