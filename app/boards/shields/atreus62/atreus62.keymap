@@ -25,7 +25,7 @@
 //&kp TAB         &kp Q    &kp W    &kp E  &kp R    &kp T                                        &kp Y          &kp U    &kp I     &kp O    &kp P    &kp LBKT
 //&kp RBKT        &kp A    &kp S    &kp D  &kp F    &kp G                                        &kp H          &kp J    &kp K     &kp L    &kp SCLN &kp APOS
 //&kp LSHFT       &kp Z    &kp X    &kp C  &kp V    &kp B                                        &kp N          &kp M    &kp CMMA  &kp DOT  &kp FSLH &mt LSHFT BSLH
-//&mt LCTRL GRAVE &kp LGUI &kp LALT &kp UP &kp DOWN &mt LSHFT BSPC &lt NUMBR DEL   &lt NAV ENTER &mt LSHFT SPC  &kp LEFT &kp RIGHT &kp RALT &kp RGUI &tog AZ_BEPO // &bootloader
+//&mt LCTRL GRAVE &kp LGUI &kp LALT &kp UP &kp DOWN &mt LSHFT BSPC &lt NUMBR DEL   &lt NAV ENTER &mt LSHFT SPC  &kp LEFT &kp RIGHT &kp RALT &kp RGUI &tog AZ_BEPO
 //                        >;
 //                };
 
@@ -35,7 +35,7 @@
 &kp TAB         &kp Q    &kp W    &kp E  &kp R    &kp T                                        &kp Y          &kp U    &kp I     &kp O    &kp P    &kp LBKT
 &kp RBKT        &kp A    &kp S    &kp D  &kp F    &kp G                                        &kp H          &kp J    &kp K     &kp L    &kp SCLN &kp APOS
 &mt LSHFT T     &kp Z    &kp X    &kp C  &kp V    &kp B                                        &kp N          &kp M    &kp CMMA  &kp DOT  &kp FSLH &mt LSHFT BSLH
-&mt LCTRL GRAVE &kp LALT &kp LGUI &kp UP &kp DOWN &mt LSHFT BSPC &lt NUMBR DEL   &lt NAV ENTER &mt LSHFT SPC  &kp LEFT &kp RIGHT &kp RGUI &kp RALT &tog AZ_BEPO // &bootloader
+&mt LCTRL GRAVE &kp LALT &kp LGUI &kp UP &kp DOWN &mt LSHFT BSPC &lt NUMBR DEL   &lt NAV ENTER &mt LSHFT SPC  &kp LEFT &kp RIGHT &kp RGUI &kp RALT &tog AZ_BEPO 
                         >;
                 };
 
@@ -45,14 +45,14 @@
 &kp TAB        &kp B    &kp N2   &kp P      &kp O        &kp N7                                       &kp LBKT      &kp V         &kp D      &kp L       &kp J           &kp W
 &kp Z          &kp Q    &kp U    &kp I      &kp E        &kp M                                        &kp C         &kp T         &kp S      &kp R       &kp N           &kp SEMI
 &mt LSHFT E    &kp N0   &kp Y    &kp X      &kp LS(CMMA) &kp K                                        &kp N4        &kp A         &kp G      &kp H       &kp F           &mt LSHFT N9
-&mt LCTRL RBKT &kp LALT &kp LGUI &kp UP     &kp DOWN     &mt LSHFT BSPC &lt NUMBR DEL   &lt NAV ENTER &mt LSHFT SPC &kp LEFT      &kp RIGHT  &kp RGUI    &kp RALT        &tog BEPO // &bootloader
+&mt LCTRL RBKT &kp LALT &kp LGUI &kp UP     &kp DOWN     &mt LSHFT BSPC &lt NUMBR DEL   &lt NAV ENTER &mt LSHFT SPC &kp LEFT      &kp RIGHT  &kp RGUI    &kp RALT        &tog AZ_BEPO 
                         >;
                 };
 
                 numbr_layer {
                         bindings = <
 &trans       &kp F1 &kp F2 &kp F3 &kp F4 &kp F5                      &kp F6        &kp F7     &kp F8     &kp F9     &kp F10    &kp F11
-&trans       &none  &none  &none  &none  &none                       &none         &kp LS(N7) &kp LS(N8) &kp LS(N9) &none      &kp F12
+&bootloader  &none  &none  &none  &none  &none                       &none         &kp LS(N7) &kp LS(N8) &kp LS(N9) &none      &kp F12
 &bt BT_CLR   &none  &none  &none  &none  &none                       &kp EQUAL     &kp LS(N4) &kp LS(N5) &kp LS(N6) &kp N8     &kp N7
 &reset       &none  &none  &none  &none  &none                       &kp LS(EQUAL) &kp LS(N1) &kp LS(N2) &kp LS(N3) &kp KP_DOT &kp N9
 &out OUT_TOG &trans &trans &trans &trans &trans &trans        &trans &trans        &kp LS(N0) &kp LS(N0) &kp HOME   &kp END    &kp MINUS
